@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def generate_complex_grid(resolution, real_range=(-2, 1), imag_range=(-1.5, 1.5)):
     """
     Generates a grid of complex numbers for the Mandelbrot set.
