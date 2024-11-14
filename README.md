@@ -2,7 +2,9 @@
 ## Approximating the Area of the Mandelbrot set using Monte Carlo Estimation.
 ## Authors:
 - add_names_here
+- Maarten Stork 2711760
 - Paul Jungnickel 15716554
+
 ## Files:
 - assignment1.ipynb - notebook containing plotting functions and results
 - mandelbrot.py contains the mandelbrot iteration algorithms

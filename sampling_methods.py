@@ -36,8 +36,6 @@ def uniform_random_sampling(num_samples, real_range=(-2, 2), imag_range=(-2, 2),
     ival = np.random.uniform(imag_range[0], imag_range[1], num_samples)
     return rval + 1.j * ival
 
-# ADD PURE RANDOM SAMPLING HERE
-
 def orthogonal_sampling(num_samples, real_range=(-2, 1), imag_range=(-1.5, 1.5), seed=42):
     """
     Performs orthogonal sampling for the Mandelbrot set, suited for Python while following the logic of the provided C code.
@@ -139,7 +137,6 @@ def importance_sampling(num_samples, max_iter, real_range=(-2, 1), imag_range=(-
 
     return weighted_area_estimate
 
-# Function for Sobol Sampling (Quasi-Monte Carlo)
 def sobol_sampling(num_samples, real_range=(-2, 1), imag_range=(-1.5, 1.5), seed=None):
     """
     Performs Sobol sampling (Quasi-Monte Carlo) for the Mandelbrot set.
@@ -164,7 +161,6 @@ def sobol_sampling(num_samples, real_range=(-2, 1), imag_range=(-1.5, 1.5), seed
     rval, ival = scaled_samples[:, 0], scaled_samples[:, 1]
     return rval + 1.j * ival
 
-# Function for Adaptive Sampling
 def adaptive_sampling(num_samples, max_iter, real_range=(-2, 1), imag_range=(-1.5, 1.5), seed=None, iterations=10):
     """
     Performs adaptive sampling for estimating the area of the Mandelbrot set.
