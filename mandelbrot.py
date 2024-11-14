@@ -3,6 +3,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def compute_mandelbrot(C, max_steps=100, bound=2, power=2, area_factor=9):
+    """
+    Computes the Mandelbrot set using the standard iteration method
+
+    Parameters:
+    - C: ndarray of complex numbers.
+    - max_steps: Maximum number of iterations.
+    - bound: Divergence threshold.
+    - power: Power used in the Mandelbrot calculation.
+    - area_factor: Factor for estimating the set area.
+
+    Returns:
+    - num_div_steps: 2D array of the number of steps before divergence.
+    - area_at_step: list of the estimated area at each iteration.
+    """
     Zi = C.copy()
     num_div_steps = np.zeros_like(C, dtype=np.int64)
     area_at_step = []
@@ -19,6 +33,21 @@ def compute_mandelbrot(C, max_steps=100, bound=2, power=2, area_factor=9):
 
 
 def compute_mandelbrot_torch(C, max_steps=100, bound=2, power=2, area_factor=9):
+    """
+    Computes the Mandelbrot set using the standard iteration method
+    Uses pytorch methods instead of numpy for better scaling on multple processors / gpu
+
+    Parameters:
+    - C: ndarray of complex numbers.
+    - max_steps: Maximum number of iterations.
+    - bound: Divergence threshold.
+    - power: Power used in the Mandelbrot calculation.
+    - area_factor: Factor for estimating the set area.
+
+    Returns:
+    - num_div_steps: 2D array of the number of steps before divergence.
+    - area_at_step: list of the estimated area at each iteration.
+    """
     if not torch.is_tensor(C):
       C = torch.from_numpy(C)
     num_samples = C.numel()
