@@ -202,3 +202,21 @@ def adaptive_sampling(num_samples, max_iter, real_range=(-2, 1), imag_range=(-1.
         area_estimate = np.mean(in_set) * rect_area
 
     return area_estimate
+
+def pure_random_sampling(num_samples, real_range=(-2, 1), imag_range=(-1.5, 1.5), seed=42):
+    """
+    Performs pure random sampling for the Mandelbrot set.
+
+    Parameters:
+    - num_samples: Number of samples.
+    - real_range: Tuple specifying the range for the real axis.
+    - imag_range: Tuple specifying the range for the imaginary axis.
+    - seed: Random seed for reproducibility.
+
+    Returns:
+    - C: 1D array of complex numbers representing the samples.
+    """
+    np.random.seed(seed)
+    rval = np.random.uniform(real_range[0], real_range[1], num_samples)
+    ival = np.random.uniform(imag_range[0], imag_range[1], num_samples)
+    return rval + 1.j * ival
