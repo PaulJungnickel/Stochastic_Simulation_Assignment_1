@@ -20,6 +20,175 @@ def generate_complex_grid(resolution, real_range=(-2, 1), imag_range=(-1.5, 1.5)
     C = rval + 1.j * ival
     return C
 
+class AdaptiveSampler:
+    def __init__(self, num_samples, max_iter, real_range=(-2, 1), imag_range=(-1.5, 1.5),
+                 seed=None, error_threshold=1e-4, max_iterations=10):
+        """
+        Initializes the AdaptiveSampler for the Mandelbrot set.
+
+        Parameters:
+        - num_samples: Total number of samples to use in the adaptive sampling process.
+        - max_iter: Maximum number of iterations for the Mandelbrot calculation.
+        - real_range: Tuple specifying the range for the real axis of the complex plane.
+        - imag_range: Tuple specifying the range for the imaginary axis of the complex plane.
+        - seed: Random seed for reproducibility. Defaults to a random seed if not provided.
+        - error_threshold: Convergence threshold for the total variance of the area estimate.
+        - max_iterations: Maximum number of adaptive refinement iterations.
+        """
+        self.num_samples = num_samples
+        self.max_iter = max_iter
+        self.real_range = real_range
+        self.imag_range = imag_range
+        self.seed = seed if seed is not None else random.randint(0, 10000)
+        self.error_threshold = error_threshold
+        self.max_iterations = max_iterations
+
+        np.random.seed(self.seed)
+
+        # Calculate initial grid size and samples per region
+        self.initial_grid_size = max(1, int(np.sqrt(self.num_samples)))
+        self.initial_samples_per_region = max(1, self.num_samples // (self.initial_grid_size ** 2))
+        self.regions = self.create_grid()
+
+    class Region:
+        def __init__(self, x_min, x_max, y_min, y_max):
+            """
+            Represents a subregion in the complex plane.
+
+            Parameters:
+            - x_min, x_max: Bounds for the real axis.
+            - y_min, y_max: Bounds for the imaginary axis.
+            """
+            self.x_min = x_min
+            self.x_max = x_max
+            self.y_min = y_min
+            self.y_max = y_max
+            self.samples = []  # Stores sampled complex numbers
+            self.in_set_counts = []  # Tracks whether samples are in the Mandelbrot set
+            self.total_samples = 0
+            self.local_area_estimate = 0  # Current area estimate for this region
+            self.local_variance = np.inf  # Variance estimate for this region
+
+        def sample(self, num_samples, max_iter):
+            """
+            Samples the region and updates the area and variance estimates.
+
+            Parameters:
+            - num_samples: Number of new samples to draw.
+            - max_iter: Maximum number of iterations for Mandelbrot set computation.
+            """
+            x_samples = np.random.uniform(self.x_min, self.x_max, num_samples)
+            y_samples = np.random.uniform(self.y_min, self.y_max, num_samples)
+            complex_samples = x_samples + 1j * y_samples
+
+            # Evaluate whether each sample belongs to the Mandelbrot set
+            in_set = np.array([is_in_mandelbrot(c, max_iter) for c in complex_samples])
+            self.samples.extend(complex_samples)
+            self.in_set_counts.extend(in_set)
+            self.total_samples += num_samples
+
+            # Update area and variance estimates
+            area = (self.x_max - self.x_min) * (self.y_max - self.y_min)
+            p = np.mean(self.in_set_counts)
+            self.local_area_estimate = p * area
+            self.local_variance = (p * (1 - p) / self.total_samples) * area ** 2 if self.total_samples > 0 else np.inf
+
+        def increase_sample_count(self, num_samples, max_iter):
+            """
+            Adds more samples to refine the region's area estimate.
+
+            Parameters:
+            - num_samples: Number of additional samples.
+            - max_iter: Maximum number of iterations for Mandelbrot set computation.
+            """
+            self.sample(num_samples, max_iter)
+
+    def create_grid(self):
+        """
+        Divides the complex plane into an initial grid of regions.
+
+        Returns:
+        - List of Region objects representing subregions of the complex plane.
+        """
+        x_min, x_max = self.real_range
+        y_min, y_max = self.imag_range
+        x_edges = np.linspace(x_min, x_max, self.initial_grid_size + 1)
+        y_edges = np.linspace(y_min, y_max, self.initial_grid_size + 1)
+
+        regions = []
+        for i in range(self.initial_grid_size):
+            for j in range(self.initial_grid_size):
+                region = self.Region(x_edges[i], x_edges[i + 1], y_edges[j], y_edges[j + 1])
+                regions.append(region)
+        return regions
+
+    def combine_region_estimates(self):
+        """
+        Computes the total area estimate by summing the local estimates from all regions.
+
+        Returns:
+        - Total area estimate of the Mandelbrot set within the defined ranges.
+        """
+        total_area_estimate = sum(region.local_area_estimate for region in self.regions)
+        return total_area_estimate
+
+    def estimate_overall_variance(self):
+        """
+        Computes the total variance across all regions.
+
+        Returns:
+        - Combined variance estimate.
+        """
+        total_variance = sum(region.local_variance for region in self.regions)
+        return total_variance
+
+    def select_regions_with_high_variance(self, fraction=0.5):
+        """
+        Selects regions with the highest variances for refinement.
+
+        Parameters:
+        - fraction: Fraction of regions to select based on their variance.
+
+        Returns:
+        - List of regions to refine.
+        """
+        variances = np.array([region.local_variance for region in self.regions])
+        threshold = np.percentile(variances, 100 * (1 - fraction))
+        regions_to_refine = [region for region in self.regions if region.local_variance >= threshold]
+        return regions_to_refine
+
+    def run(self):
+        """
+        Executes the adaptive sampling process to estimate the Mandelbrot set's area.
+
+        Returns:
+        - Final area estimate after convergence or maximum iterations.
+        """
+        for iteration in range(self.max_iterations):
+            # Sample all regions in the grid
+            for region in self.regions:
+                samples_to_draw = max(1, self.initial_samples_per_region // (iteration + 1)) \
+                                  if region.total_samples > 0 else self.initial_samples_per_region
+                region.sample(samples_to_draw, self.max_iter)
+
+            # Update area and variance estimates
+            area_estimate = self.combine_region_estimates()
+            variance_estimate = self.estimate_overall_variance()
+
+            # Check for convergence
+            if variance_estimate < self.error_threshold:
+                break
+
+            # Refine regions with high variance
+            regions_to_refine = self.select_regions_with_high_variance()
+            if not regions_to_refine:
+                break
+            additional_samples = max(1, self.initial_samples_per_region // (iteration + 1))
+            for region in regions_to_refine:
+                region.increase_sample_count(additional_samples, self.max_iter)
+
+        return area_estimate
+
 def uniform_random_sampling(num_samples, real_range=(-2, 2), imag_range=(-2, 2), seed=42):
     """
     Performs uniform random sampling for the Mandelbrot set.
