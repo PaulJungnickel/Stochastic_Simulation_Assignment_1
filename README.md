@@ -2,8 +2,9 @@
 ## Approximating the Area of the Mandelbrot Set Using Monte Carlo Estimation
 ## Authors:
 - Add_names_here
-- Maarten Stork 2711760
-- Paul Jungnickel 15716554
+- Maarten Stork - 2711760
+- Paul Jungnickel - 15716554
+- Lucas Keijzer - 14041073
 
 ## Files:
 - `assignment1.ipynb` - Notebook containing plotting functions and results
