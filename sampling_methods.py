@@ -178,48 +178,6 @@ def sobol_sampling(num_samples, real_range=(-2, 1), imag_range=(-1.5, 1.5), seed
     rval, ival = scaled_samples[:, 0], scaled_samples[:, 1]
     return rval + 1.j * ival
 
-def adaptive_sampling(num_samples, max_iter, real_range=(-2, 1), imag_range=(-1.5, 1.5), seed=None, iterations=10):
-    """
-    Performs adaptive sampling for estimating the area of the Mandelbrot set.
-
-    Parameters:
-    - num_samples: Number of initial samples.
-    - max_iter: Maximum number of iterations for Mandelbrot membership.
-    - real_range: Tuple specifying the range for the real axis.
-    - imag_range: Tuple specifying the range for the imaginary axis.
-    - seed: Random seed for reproducibility.
-    - iterations: Number of adaptive sampling iterations.
-
-    Returns:
-    - area_estimate: Estimated area of the Mandelbrot set.
-    """
-    if seed is None:
-        seed = random.randint(0, 10000)
-    np.random.seed(seed)
-
-    # Generate initial samples
-    rval = np.random.uniform(real_range[0], real_range[1], num_samples)
-    ival = np.random.uniform(imag_range[0], imag_range[1], num_samples)
-    complex_samples = rval + 1.j * ival
-
-    # Determine if samples are in the Mandelbrot set
-    in_set = np.array([is_in_mandelbrot(c, max_iter) for c in complex_samples])
-    rect_area = (real_range[1] - real_range[0]) * (imag_range[1] - imag_range[0])
-    area_estimate = np.mean(in_set) * rect_area
-
-    # Adaptive refinement loop
-    for _ in range(iterations):
-        num_refine_samples = int(num_samples * 0.5)
-        refine_rval = np.random.uniform(real_range[0], real_range[1], num_refine_samples)
-        refine_ival = np.random.uniform(imag_range[0], imag_range[1], num_refine_samples)
-        refine_samples = refine_rval + 1.j * refine_ival
-
-        complex_samples = np.concatenate((complex_samples, refine_samples))
-        in_set = np.array([is_in_mandelbrot(c, max_iter) for c in complex_samples])
-        area_estimate = np.mean(in_set) * rect_area
-
-    return area_estimate
-
 def pure_random_sampling(num_samples, real_range=(-2, 1), imag_range=(-1.5, 1.5), seed=42):
     """
     Performs pure random sampling for the Mandelbrot set.
