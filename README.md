@@ -1,7 +1,6 @@
 # Stochastic_Simulation_Assignment_1
 ## Approximating the Area of the Mandelbrot Set Using Monte Carlo Estimation
 ## Authors:
-- Add_names_here
 - Maarten Stork - 15761770
 - Paul Jungnickel - 15716554
 - Lucas Keijzer - 14041073
