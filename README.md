@@ -7,10 +7,10 @@
 - Lucas Keijzer - 14041073
 
 ## Files:
-- `assignment1.ipynb` - Notebook containing plotting functions and results
+- `MaartenStork_15761770_PaulJungnick…5716554_LucasKeijzer_14041073..ipynb` - Notebook containing plotting functions and results
 - `mandelbrot.py` - Contains the Mandelbrot iteration algorithms
 - `sampling_methods.py` - Contains methods for generating samples from the complex plane
-- `FullResults_Assignment1.ipynb` - Contains the code from the Google Colab, this code can largly be ignored.
+- `GoogleColab.ipynb` - Contains the code from the Google Colab, this code can largly be ignored.
 - `/plots` - Contains all the plots generated 
 
 ## Dependencies:
